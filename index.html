@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            padding: 40px 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(120, 0, 255, 0.1), transparent),
+                        radial-gradient(circle at 80% 80%, rgba(0, 245, 255, 0.1), transparent);
+            pointer-events: none;
+            animation: gradientMove 15s ease infinite;
+        }
+
+        @keyframes gradientMove {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .shooting-star {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+            animation: shoot 3s linear infinite;
+        }
+
+        @keyframes shoot {
+            0% {
+                transform: translateX(0) translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-300px) translateY(300px);
+                opacity: 0;
+            }
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto 50px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.8s ease-out, float 6s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            color: #fff;
+            text-align: center;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            background: linear-gradient(45deg, #00f5ff, #0080ff, #ff00ff, #00f5ff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease infinite;
+            text-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1em;
+            animation: fadeIn 1s ease-out 0.3s backwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out backwards;
+            position: relative;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+        .form-group:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        label {
+            display: block;
+            color: #00f5ff;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 16px 22px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(0, 245, 255, 0.3);
+            border-radius: 15px;
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            position: relative;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #00f5ff;
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.4), inset 0 0 20px rgba(0, 245, 255, 0.1);
+            transform: translateY(-3px) scale(1.01);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        option {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 10px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .rating {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            padding: 15px 0;
+        }
+
+        .star-rating {
+            font-size: 2.5em;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+        }
+
+        .star-rating::after {
+            content: '★';
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: #ffd700;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.4s ease;
+        }
+
+        .star-rating:hover,
+        .star-rating.active {
+            color: #ffd700;
+            transform: scale(1.3) rotate(360deg);
+            text-shadow: 0 0 30px rgba(255, 215, 0, 1);
+            filter: drop-shadow(0 0 10px #ffd700);
+        }
+
+        .star-rating.active::after {
+            opacity: 1;
+            transform: scale(1.5);
+            animation: starPulse 0.6s ease;
+        }
+
+        @keyframes starPulse {
+            0%, 100% { transform: scale(1.5); }
+            50% { transform: scale(2); }
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #00f5ff, #0080ff, #00f5ff);
+            background-size: 200% 200%;
+            border: none;
+            border-radius: 15px;
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 128, 255, 0.4);
+            animation: btnGradient 3s ease infinite;
+        }
+
+        @keyframes btnGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 128, 255, 0.6);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border: 2px solid #00f5ff;
+            border-radius: 30px;
+            padding: 60px 80px;
+            text-align: center;
+            color: #00ff88;
+            font-size: 1.8em;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 0 100px rgba(0, 245, 255, 0.8), inset 0 0 50px rgba(0, 245, 255, 0.2);
+            animation: successAppear 0.6s ease forwards;
+            display: none;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @keyframes successAppear {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+            }
+            60% {
+                transform: translate(-50%, -50%) scale(1.1) rotate(10deg);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+            }
+        }
+
+        .success-message .message-title {
+            font-size: 1.4em;
+            background: linear-gradient(45deg, #00f5ff, #00ff88, #00f5ff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(0, 245, 255, 0.8);
+        }
+
+        .success-message .message-body {
+            font-size: 0.7em;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+        }
+
+        .success-message .sparkle {
+            display: inline-block;
+            animation: sparkle 1s ease infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+
+        .feedback-list {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .feedback-list h2 {
+            color: #fff;
+            text-align: center;
+            font-size: 2.2em;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            background: linear-gradient(45deg, #ff00ff, #00f5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .feedback-card {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: cardSlideIn 0.6s ease-out backwards;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feedback-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .feedback-card:hover::before {
+            left: 100%;
+        }
+
+        .feedback-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 50px rgba(0, 245, 255, 0.3);
+            border-color: rgba(0, 245, 255, 0.3);
+        }
+
+        @keyframes cardSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .feedback-name {
+            color: #00f5ff;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+        }
+
+        .feedback-date {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85em;
+        }
+
+        .feedback-rating {
+            margin: 15px 0;
+            color: #ffd700;
+            font-size: 1.5em;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+
+        .feedback-section {
+            margin: 15px 0;
+        }
+
+        .feedback-label {
+            color: #ff00ff;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+        }
+
+        .feedback-text {
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border-left: 3px solid rgba(0, 245, 255, 0.5);
+        }
+
+        .no-feedback {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 1.2em;
+            padding: 60px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        ::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 25px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .star-rating {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="main-container">
+        <div class="container">
+            <h1>Feedback Portal</h1>
+            <p class="subtitle">Your voice shapes our future</p>
+            
+            <form id="feedbackForm">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter your name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select your category</option>
+                        <option value="participant">Participant</option>
+                        <option value="mentor">Mentor</option>
+                        <option value="judge">Judge</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="correction">Correction/Suggestion</label>
+                    <textarea id="correction" name="correction" placeholder="Any corrections or suggestions you'd like to share..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="rating" id="rating">
+                        <span class="star-rating" data-rating="1">★</span>
+                        <span class="star-rating" data-rating="2">★</span>
+                        <span class="star-rating" data-rating="3">★</span>
+                        <span class="star-rating" data-rating="4">★</span>
+                        <span class="star-rating" data-rating="5">★</span>
+                    </div>
+                    <input type="hidden" id="ratingValue" name="rating" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="feedback">Your Feedback</label>
+                    <textarea id="feedback" name="feedback" placeholder="Share your thoughts with us..." required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Feedback</button>
+            </form>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <div class="message-title">
+                <span class="sparkle">✨</span> 
+                <span id="messageTitle"></span> 
+                <span class="sparkle">✨</span>
+            </div>
+            <div class="message-body" id="messageBody"></div>
+        </div>
+
+        <div class="feedback-list">
+            <h2>Recent Feedback</h2>
+            <div id="feedbackContainer">
+                <div class="no-feedback">No feedback submitted yet. Be the first!</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create stars and shooting stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Add shooting stars
+        for (let i = 0; i < 3; i++) {
+            const shootingStar = document.createElement('div');
+            shootingStar.className = 'shooting-star';
+            shootingStar.style.left = Math.random() * 100 + '%';
+            shootingStar.style.top = Math.random() * 50 + '%';
+            shootingStar.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(shootingStar);
+        }
+
+        // Rating system
+        const stars = document.querySelectorAll('.star-rating');
+        const ratingValue = document.getElementById('ratingValue');
+        let selectedRating = 0;
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                selectedRating = this.dataset.rating;
+                ratingValue.value = selectedRating;
+                
+                stars.forEach(s => {
+                    if (s.dataset.rating <= selectedRating) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+
+            star.addEventListener('mouseenter', function() {
+                const hoverRating = this.dataset.rating;
+                stars.forEach(s => {
+                    if (s.dataset.rating <= hoverRating) {
+                        s.style.color = '#ffd700';
+                        s.style.textShadow = '0 0 30px rgba(255, 215, 0, 1)';
+                        s.style.transform = 'scale(1.2)';
+                    }
+                });
+            });
+
+            star.addEventListener('mouseleave', function() {
+                stars.forEach(s => {
+                    if (!s.classList.contains('active')) {
+                        s.style.color = 'rgba(255, 255, 255, 0.2)';
+                        s.style.textShadow = 'none';
+                        s.style.transform = 'scale(1)';
+                    }
+                });
+            });
+        });
+
+        // Load feedback from memory (persists during page session)
+        let feedbackData = [];
+
+        // Load existing feedback on page load
+        function loadFeedback() {
+            const saved = window.feedbackStorage || [];
+            feedbackData = saved;
+            displayFeedback();
+        }
+
+        // Save feedback to persistent storage
+        function saveFeedback() {
+            window.feedbackStorage = feedbackData;
+        }
+
+        // Display feedback
+        function displayFeedback() {
+            const container = document.getElementById('feedbackContainer');
+            
+            if (feedbackData.length === 0) {
+                container.innerHTML = '<div class="no-feedback">No feedback submitted yet. Be the first!</div>';
+                return;
+            }
+
+            container.innerHTML = feedbackData.map((data, index) => {
+                const date = new Date(data.timestamp);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                const stars = '★'.repeat(data.rating) + '☆'.repeat(5 - data.rating);
+                
+                return `
+                    <div class="feedback-card" style="animation-delay: ${index * 0.1}s">
+                        <div class="feedback-header">
+                            <div class="feedback-name">${data.name}</div>
+                            <div class="feedback-date">${formattedDate}</div>
+                        </div>
+                        <div class="feedback-rating">${stars}</div>
+                        <div class="feedback-section">
+                            <div class="feedback-label">Category</div>
+                            <div class="feedback-text">${data.category.charAt(0).toUpperCase() + data.category.slice(1)}</div>
+                        </div>
+                        <div class="feedback-section">
+                            <div class="feedback-label">Email</div>
+                            <div class="feedback-text">${data.email}</div>
+                        </div>
+                        <div class="feedback-section">
+                            <div class="feedback-label">Correction/Suggestion</div>
+                            <div class="feedback-text">${data.correction}</div>
+                        </div>
+                        <div class="feedback-section">
+                            <div class="feedback-label">Feedback</div>
+                            <div class="feedback-text">${data.feedback}</div>
+                        </div>
+                    </div>
+                `;
+            }).reverse().join('');
+        }
+
+        // Form submission
+        document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('category').value;
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                category: category,
+                email: document.getElementById('email').value,
+                correction: document.getElementById('correction').value,
+                rating: parseInt(ratingValue.value),
+                feedback: document.getElementById('feedback').value,
+                timestamp: new Date().toISOString()
+            };
+
+            // Store feedback
+            feedbackData.push(formData);
+            saveFeedback();
+            
+            // Display updated feedback list
+            displayFeedback();
+            
+            // Show customized success message based on category
+            const successMessage = document.getElementById('successMessage');
+            const messageTitle = document.getElementById('messageTitle');
+            const messageBody = document.getElementById('messageBody');
+            
+            if (category === 'participant') {
+                messageTitle.textContent = 'Thank You For Your Valuable Feedback!';
+                messageBody.innerHTML = '🎯 All the best for your journey!<br>May success follow you everywhere! 🌟';
+            } else if (category === 'mentor') {
+                messageTitle.textContent = 'Thank You For Your Valuable Feedback!';
+                messageBody.innerHTML = '🙏 Thank you for your guidance and wisdom!<br>Your mentorship shapes future leaders! 💫';
+            } else if (category === 'judge') {
+                messageTitle.textContent = 'Thank You For Your Valuable Feedback!';
+                messageBody.innerHTML = '⚖️ "The best way to predict the future is to create it."<br>Your fair judgment inspires excellence! 🏆<br>"Excellence is not a skill, it\'s an attitude."';
+            }
+            
+            successMessage.classList.add('show');
+            
+            // Scroll to feedback section after message disappears
+            setTimeout(() => {
+                document.querySelector('.feedback-list').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 5500);
+            
+            // Hide success message and reset form after 5 seconds
+            setTimeout(() => {
+                successMessage.classList.remove('show');
+                this.reset();
+                ratingValue.value = '';
+                stars.forEach(s => s.classList.remove('active'));
+                selectedRating = 0;
+            }, 5000);
+        });
+
+        // Initial load
+        loadFeedback();
+    </script>
+</body>
+</html>
